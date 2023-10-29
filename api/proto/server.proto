@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package api.proto;
+option go_package = "ks-grpc/api/proto/api.proto";
+
+// go_package="ks-grpc"
+
+// Define the request message
+message LocationRequest {
+  double lat = 1;
+  double lng = 2;
+  string uuid = 3;
+}
+
+// Define the response message
+message LocationResponse {
+  double lat = 1;
+  double lng = 2;
+  string name = 3;
+  string uuid = 4;
+  bool available = 5;
+}
+
+// Define the gRPC service
+service LocationService {
+  // Unary RPC method
+  rpc GetLocation(LocationRequest) returns (LocationResponse);
+
+  // Server-side streaming RPC method
+  rpc StreamLocations(LocationRequest) returns (stream LocationResponse);
+
+  // Bidirectional streaming RPC method
+  rpc TrackLocations(stream LocationRequest) returns (stream LocationResponse);
+}
+
+
+
+
+
