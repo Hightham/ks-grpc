@@ -40,7 +40,7 @@ func NewLocationServiceClient(cc grpc.ClientConnInterface) LocationServiceClient
 
 func (c *locationServiceClient) GetLocation(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (*LocationResponse, error) {
 	out := new(LocationResponse)
-	err := c.cc.Invoke(ctx, "/api.proto.LocationService/GetLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api_proto.LocationService/GetLocation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (c *locationServiceClient) GetLocation(ctx context.Context, in *LocationReq
 }
 
 func (c *locationServiceClient) StreamLocations(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (LocationService_StreamLocationsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[0], "/api.proto.LocationService/StreamLocations", opts...)
+	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[0], "/api_proto.LocationService/StreamLocations", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (x *locationServiceStreamLocationsClient) Recv() (*LocationResponse, error)
 }
 
 func (c *locationServiceClient) TrackLocations(ctx context.Context, opts ...grpc.CallOption) (LocationService_TrackLocationsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[1], "/api.proto.LocationService/TrackLocations", opts...)
+	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[1], "/api_proto.LocationService/TrackLocations", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func _LocationService_GetLocation_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.proto.LocationService/GetLocation",
+		FullMethod: "/api_proto.LocationService/GetLocation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LocationServiceServer).GetLocation(ctx, req.(*LocationRequest))
@@ -218,7 +218,7 @@ func (x *locationServiceTrackLocationsServer) Recv() (*LocationRequest, error) {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var LocationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "api.proto.LocationService",
+	ServiceName: "api_proto.LocationService",
 	HandlerType: (*LocationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
