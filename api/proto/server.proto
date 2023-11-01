@@ -4,6 +4,7 @@ package api_proto;
 option go_package = "/api_proto";
 
 
+
 // Define the gRPC request message
 message LocationRequest {
   double lat = 1;
@@ -19,6 +20,10 @@ message LocationResponse {
   bool available = 5;
 }
 
+message LocationResponseList {
+  repeated LocationResponse LocationResponse = 1;
+}
+
 // Define the gRPC service
 service ChargingPointsService {
   // Unary RPC method
@@ -27,8 +32,8 @@ service ChargingPointsService {
   // Server-side streaming RPC method
   rpc StreamChargingStations(LocationRequest) returns (stream LocationResponse);
 
-    // Server-side streaming RPC method
-  rpc StreamLocation(stream LocationRequest) returns ( LocationResponse);
+  // Client-side streaming RPC method
+  rpc StreamLocation(stream LocationRequest) returns (LocationResponseList);
 
   // Bidirectional streaming RPC method
   rpc TrackLocations(stream LocationRequest) returns (stream LocationResponse);

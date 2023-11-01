@@ -26,7 +26,7 @@ type ChargingPointsServiceClient interface {
 	GetChargingStation(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (*LocationResponse, error)
 	// Server-side streaming RPC method
 	StreamChargingStations(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (ChargingPointsService_StreamChargingStationsClient, error)
-	// Server-side streaming RPC method
+	// Client-side streaming RPC method
 	StreamLocation(ctx context.Context, opts ...grpc.CallOption) (ChargingPointsService_StreamLocationClient, error)
 	// Bidirectional streaming RPC method
 	TrackLocations(ctx context.Context, opts ...grpc.CallOption) (ChargingPointsService_TrackLocationsClient, error)
@@ -92,7 +92,7 @@ func (c *chargingPointsServiceClient) StreamLocation(ctx context.Context, opts .
 
 type ChargingPointsService_StreamLocationClient interface {
 	Send(*LocationRequest) error
-	CloseAndRecv() (*LocationResponse, error)
+	CloseAndRecv() (*LocationResponseList, error)
 	grpc.ClientStream
 }
 
@@ -104,11 +104,11 @@ func (x *chargingPointsServiceStreamLocationClient) Send(m *LocationRequest) err
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *chargingPointsServiceStreamLocationClient) CloseAndRecv() (*LocationResponse, error) {
+func (x *chargingPointsServiceStreamLocationClient) CloseAndRecv() (*LocationResponseList, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
-	m := new(LocationResponse)
+	m := new(LocationResponseList)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ type ChargingPointsServiceServer interface {
 	GetChargingStation(context.Context, *LocationRequest) (*LocationResponse, error)
 	// Server-side streaming RPC method
 	StreamChargingStations(*LocationRequest, ChargingPointsService_StreamChargingStationsServer) error
-	// Server-side streaming RPC method
+	// Client-side streaming RPC method
 	StreamLocation(ChargingPointsService_StreamLocationServer) error
 	// Bidirectional streaming RPC method
 	TrackLocations(ChargingPointsService_TrackLocationsServer) error
@@ -234,7 +234,7 @@ func _ChargingPointsService_StreamLocation_Handler(srv interface{}, stream grpc.
 }
 
 type ChargingPointsService_StreamLocationServer interface {
-	SendAndClose(*LocationResponse) error
+	SendAndClose(*LocationResponseList) error
 	Recv() (*LocationRequest, error)
 	grpc.ServerStream
 }
@@ -243,7 +243,7 @@ type chargingPointsServiceStreamLocationServer struct {
 	grpc.ServerStream
 }
 
-func (x *chargingPointsServiceStreamLocationServer) SendAndClose(m *LocationResponse) error {
+func (x *chargingPointsServiceStreamLocationServer) SendAndClose(m *LocationResponseList) error {
 	return x.ServerStream.SendMsg(m)
 }
 
