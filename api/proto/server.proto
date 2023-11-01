@@ -20,7 +20,7 @@ message LocationResponse {
 }
 
 // Define the gRPC service
-service LocationService {
+service ChargingPointsService {
   // Unary RPC method
   rpc GetChargingStation(LocationRequest) returns (LocationResponse);
 
