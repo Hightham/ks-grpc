@@ -23,9 +23,11 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LocationServiceClient interface {
 	// Unary RPC method
-	GetLocation(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (*LocationResponse, error)
+	GetChargingStation(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (*LocationResponse, error)
 	// Server-side streaming RPC method
-	StreamLocations(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (LocationService_StreamLocationsClient, error)
+	StreamChargingStations(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (LocationService_StreamChargingStationsClient, error)
+	// Server-side streaming RPC method
+	StreamLocation(ctx context.Context, opts ...grpc.CallOption) (LocationService_StreamLocationClient, error)
 	// Bidirectional streaming RPC method
 	TrackLocations(ctx context.Context, opts ...grpc.CallOption) (LocationService_TrackLocationsClient, error)
 }
@@ -38,21 +40,21 @@ func NewLocationServiceClient(cc grpc.ClientConnInterface) LocationServiceClient
 	return &locationServiceClient{cc}
 }
 
-func (c *locationServiceClient) GetLocation(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (*LocationResponse, error) {
+func (c *locationServiceClient) GetChargingStation(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (*LocationResponse, error) {
 	out := new(LocationResponse)
-	err := c.cc.Invoke(ctx, "/api_proto.LocationService/GetLocation", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/api_proto.LocationService/GetChargingStation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *locationServiceClient) StreamLocations(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (LocationService_StreamLocationsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[0], "/api_proto.LocationService/StreamLocations", opts...)
+func (c *locationServiceClient) StreamChargingStations(ctx context.Context, in *LocationRequest, opts ...grpc.CallOption) (LocationService_StreamChargingStationsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[0], "/api_proto.LocationService/StreamChargingStations", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &locationServiceStreamLocationsClient{stream}
+	x := &locationServiceStreamChargingStationsClient{stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -62,16 +64,50 @@ func (c *locationServiceClient) StreamLocations(ctx context.Context, in *Locatio
 	return x, nil
 }
 
-type LocationService_StreamLocationsClient interface {
+type LocationService_StreamChargingStationsClient interface {
 	Recv() (*LocationResponse, error)
 	grpc.ClientStream
 }
 
-type locationServiceStreamLocationsClient struct {
+type locationServiceStreamChargingStationsClient struct {
 	grpc.ClientStream
 }
 
-func (x *locationServiceStreamLocationsClient) Recv() (*LocationResponse, error) {
+func (x *locationServiceStreamChargingStationsClient) Recv() (*LocationResponse, error) {
+	m := new(LocationResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *locationServiceClient) StreamLocation(ctx context.Context, opts ...grpc.CallOption) (LocationService_StreamLocationClient, error) {
+	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[1], "/api_proto.LocationService/StreamLocation", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &locationServiceStreamLocationClient{stream}
+	return x, nil
+}
+
+type LocationService_StreamLocationClient interface {
+	Send(*LocationRequest) error
+	CloseAndRecv() (*LocationResponse, error)
+	grpc.ClientStream
+}
+
+type locationServiceStreamLocationClient struct {
+	grpc.ClientStream
+}
+
+func (x *locationServiceStreamLocationClient) Send(m *LocationRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *locationServiceStreamLocationClient) CloseAndRecv() (*LocationResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
 	m := new(LocationResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -80,7 +116,7 @@ func (x *locationServiceStreamLocationsClient) Recv() (*LocationResponse, error)
 }
 
 func (c *locationServiceClient) TrackLocations(ctx context.Context, opts ...grpc.CallOption) (LocationService_TrackLocationsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[1], "/api_proto.LocationService/TrackLocations", opts...)
+	stream, err := c.cc.NewStream(ctx, &LocationService_ServiceDesc.Streams[2], "/api_proto.LocationService/TrackLocations", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -115,9 +151,11 @@ func (x *locationServiceTrackLocationsClient) Recv() (*LocationResponse, error) 
 // for forward compatibility
 type LocationServiceServer interface {
 	// Unary RPC method
-	GetLocation(context.Context, *LocationRequest) (*LocationResponse, error)
+	GetChargingStation(context.Context, *LocationRequest) (*LocationResponse, error)
 	// Server-side streaming RPC method
-	StreamLocations(*LocationRequest, LocationService_StreamLocationsServer) error
+	StreamChargingStations(*LocationRequest, LocationService_StreamChargingStationsServer) error
+	// Server-side streaming RPC method
+	StreamLocation(LocationService_StreamLocationServer) error
 	// Bidirectional streaming RPC method
 	TrackLocations(LocationService_TrackLocationsServer) error
 	mustEmbedUnimplementedLocationServiceServer()
@@ -127,11 +165,14 @@ type LocationServiceServer interface {
 type UnimplementedLocationServiceServer struct {
 }
 
-func (UnimplementedLocationServiceServer) GetLocation(context.Context, *LocationRequest) (*LocationResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetLocation not implemented")
+func (UnimplementedLocationServiceServer) GetChargingStation(context.Context, *LocationRequest) (*LocationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetChargingStation not implemented")
 }
-func (UnimplementedLocationServiceServer) StreamLocations(*LocationRequest, LocationService_StreamLocationsServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamLocations not implemented")
+func (UnimplementedLocationServiceServer) StreamChargingStations(*LocationRequest, LocationService_StreamChargingStationsServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamChargingStations not implemented")
+}
+func (UnimplementedLocationServiceServer) StreamLocation(LocationService_StreamLocationServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamLocation not implemented")
 }
 func (UnimplementedLocationServiceServer) TrackLocations(LocationService_TrackLocationsServer) error {
 	return status.Errorf(codes.Unimplemented, "method TrackLocations not implemented")
@@ -149,43 +190,69 @@ func RegisterLocationServiceServer(s grpc.ServiceRegistrar, srv LocationServiceS
 	s.RegisterService(&LocationService_ServiceDesc, srv)
 }
 
-func _LocationService_GetLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LocationService_GetChargingStation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LocationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LocationServiceServer).GetLocation(ctx, in)
+		return srv.(LocationServiceServer).GetChargingStation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api_proto.LocationService/GetLocation",
+		FullMethod: "/api_proto.LocationService/GetChargingStation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LocationServiceServer).GetLocation(ctx, req.(*LocationRequest))
+		return srv.(LocationServiceServer).GetChargingStation(ctx, req.(*LocationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _LocationService_StreamLocations_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _LocationService_StreamChargingStations_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(LocationRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(LocationServiceServer).StreamLocations(m, &locationServiceStreamLocationsServer{stream})
+	return srv.(LocationServiceServer).StreamChargingStations(m, &locationServiceStreamChargingStationsServer{stream})
 }
 
-type LocationService_StreamLocationsServer interface {
+type LocationService_StreamChargingStationsServer interface {
 	Send(*LocationResponse) error
 	grpc.ServerStream
 }
 
-type locationServiceStreamLocationsServer struct {
+type locationServiceStreamChargingStationsServer struct {
 	grpc.ServerStream
 }
 
-func (x *locationServiceStreamLocationsServer) Send(m *LocationResponse) error {
+func (x *locationServiceStreamChargingStationsServer) Send(m *LocationResponse) error {
 	return x.ServerStream.SendMsg(m)
+}
+
+func _LocationService_StreamLocation_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(LocationServiceServer).StreamLocation(&locationServiceStreamLocationServer{stream})
+}
+
+type LocationService_StreamLocationServer interface {
+	SendAndClose(*LocationResponse) error
+	Recv() (*LocationRequest, error)
+	grpc.ServerStream
+}
+
+type locationServiceStreamLocationServer struct {
+	grpc.ServerStream
+}
+
+func (x *locationServiceStreamLocationServer) SendAndClose(m *LocationResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *locationServiceStreamLocationServer) Recv() (*LocationRequest, error) {
+	m := new(LocationRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func _LocationService_TrackLocations_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -222,15 +289,20 @@ var LocationService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*LocationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetLocation",
-			Handler:    _LocationService_GetLocation_Handler,
+			MethodName: "GetChargingStation",
+			Handler:    _LocationService_GetChargingStation_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "StreamLocations",
-			Handler:       _LocationService_StreamLocations_Handler,
+			StreamName:    "StreamChargingStations",
+			Handler:       _LocationService_StreamChargingStations_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "StreamLocation",
+			Handler:       _LocationService_StreamLocation_Handler,
+			ClientStreams: true,
 		},
 		{
 			StreamName:    "TrackLocations",

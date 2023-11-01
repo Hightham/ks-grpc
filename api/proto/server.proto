@@ -7,14 +7,13 @@ option go_package = "/api_proto";
 // Define the gRPC request message
 message LocationRequest {
   double lat = 1;
-  double lng = 2;
-  string uuid = 3;
+  double long = 2;
 }
 
 // Define the gRPC response message
 message LocationResponse {
   double lat = 1;
-  double lng = 2;
+  double long = 2;
   string name = 3;
   string uuid = 4;
   bool available = 5;
@@ -23,10 +22,13 @@ message LocationResponse {
 // Define the gRPC service
 service LocationService {
   // Unary RPC method
-  rpc GetLocation(LocationRequest) returns (LocationResponse);
+  rpc GetChargingStation(LocationRequest) returns (LocationResponse);
 
   // Server-side streaming RPC method
-  rpc StreamLocations(LocationRequest) returns (stream LocationResponse);
+  rpc StreamChargingStations(LocationRequest) returns (stream LocationResponse);
+
+    // Server-side streaming RPC method
+  rpc StreamLocation(stream LocationRequest) returns ( LocationResponse);
 
   // Bidirectional streaming RPC method
   rpc TrackLocations(stream LocationRequest) returns (stream LocationResponse);
