@@ -27,3 +27,6 @@ navigate to api/proto/server and excute the following command:
 #### 6. update dependecies:
     > go mod tidy
 Updates `go.mod` file with missing or unnecessary dependencies and creates a `go.sum` file.
+
+#### 6. Run server:
+    > go run main.go
