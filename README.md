@@ -1,5 +1,5 @@
 # Grpc-API
-Live Hub Server implementation for DOPI in Map
+gRPC implementation
 
 ### Setup
 
